@@ -15,7 +15,7 @@ import (
 
 // Less returns true if x < y in a duration-aware comparison.
 // It is suitable for use with Go's standard sort.Interface.
-func less(a, b string) bool {
+func Less(a, b string) bool {
 	// the idea is to scan along a and b rune-by-rune (might as well the UTF-8 ready),
 	// until a numeric [0-9] or '-' rune is reached in both strings. Then I attempt to decode
 	// the strings as if they were durations. If that works, the durations are compared.
@@ -62,10 +62,6 @@ func less(a, b string) bool {
 		}
 	}
 }
-func Less(a, b string) bool {
-	r := less(a, b)
-	return r
-}
 
 // extractDuration extracts the duration prefix of a.
 // It returns the decoded duration and the remaining non-duration part of a.
@@ -89,6 +85,11 @@ loop:
 		}
 	}
 	i++
+	// '.' cannot be the last char
+	for len(a) >= i && a[i-1] == '.' {
+		i--
+	}
+
 	dur, err := parseDuration(a[:i])
 	if err == nil {
 		return dur, a[i:], true
