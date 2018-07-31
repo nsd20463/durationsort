@@ -73,6 +73,32 @@ func TestParseFailures(t *testing.T) {
 	}
 }
 
+func TestExtract(t *testing.T) {
+	// test cases which should work
+	cases := []struct {
+		s    string
+		d    time.Duration
+		left string
+	}{
+		{"0d", 0, ""},
+		{"1h-", time.Hour, "-"},
+		{"1m.", time.Minute, "."},
+		{"-1m\"", -time.Minute, "\""},
+		{"1d,2h", 24 * time.Hour, ",2h"},
+	}
+
+	for _, c := range cases {
+		d, s, ok := extractDuration(c.s)
+		t.Logf("extractDuration(%q) = %v, %q, %v", c.s, d, s, ok)
+
+		if !ok {
+			t.Errorf("extractDuration(%q) failed", c.s)
+		} else if d != c.d || s != c.left {
+			t.Errorf("extractDuration(%q) returned unexpected result %v,%q != expected  %v,%q", c.s, d, s, c.d, c.left)
+		}
+	}
+}
+
 func TestEqual(t *testing.T) {
 	// test cases for equality (Less(x,x) should be false)
 	cases := []string{
